@@ -27,3 +27,6 @@ GFPGANv1.4.pth:
 	- https://upscale.wiki/wiki/Official_Research_Models
 
 	
+Troubleshooting:
+	At leas on Windows: if using pyenv (https://github.com/pyenv/pyenv) or pyenv-win (https://github.com/pyenv-win/pyenv-win), you have to specify the python executable in webui-user.bat, AND you have to install a non-win32 python version
+		For ex. in webui-user.bat, set PYTHON="C:\Users\lucianmq\.pyenv\pyenv-win\versions\3.10.6"
