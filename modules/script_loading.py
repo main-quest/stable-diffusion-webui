@@ -1,16 +1,13 @@
 import os
-import sys
-import traceback
-from types import ModuleType
+import importlib.util
+
+from modules import errors
 
 
 def load_module(path):
-    with open(path, "r", encoding="utf8") as file:
-        text = file.read()
-
-    compiled = compile(text, path, 'exec')
-    module = ModuleType(os.path.basename(path))
-    exec(compiled, module.__dict__)
+    module_spec = importlib.util.spec_from_file_location(os.path.basename(path), path)
+    module = importlib.util.module_from_spec(module_spec)
+    module_spec.loader.exec_module(module)
 
     return module
 
@@ -30,5 +27,4 @@ def preload_extensions(extensions_dir, parser):
                 module.preload(parser)
 
         except Exception:
-            print(f"Error running preload() for {preload_script}", file=sys.stderr)
-            print(traceback.format_exc(), file=sys.stderr)
+            errors.report(f"Error running preload() for {preload_script}", exc_info=True)

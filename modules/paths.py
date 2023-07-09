@@ -1,10 +1,11 @@
-import argparse
 import os
 import sys
-import modules.safe
+from modules.paths_internal import models_path, script_path, data_path, extensions_dir, extensions_builtin_dir  # noqa: F401
 
-script_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-models_path = os.path.join(script_path, "models")
+import modules.safe  # noqa: F401
+
+
+# data_path = cmd_opts_pre.data
 sys.path.insert(0, script_path)
 
 # search for directory of stable diffusion in following places
@@ -15,11 +16,10 @@ for possible_sd_path in possible_sd_paths:
         sd_path = os.path.abspath(possible_sd_path)
         break
 
-assert sd_path is not None, "Couldn't find Stable Diffusion in any of: " + str(possible_sd_paths)
+assert sd_path is not None, f"Couldn't find Stable Diffusion in any of: {possible_sd_paths}"
 
 path_dirs = [
     (sd_path, 'ldm', 'Stable Diffusion', []),
-    (os.path.join(sd_path, '../taming-transformers'), 'taming', 'Taming Transformers', []),
     (os.path.join(sd_path, '../CodeFormer'), 'inference_codeformer.py', 'CodeFormer', []),
     (os.path.join(sd_path, '../BLIP'), 'models/blip.py', 'BLIP', []),
     (os.path.join(sd_path, '../k-diffusion'), 'k_diffusion/sampling.py', 'k_diffusion', ["atstart"]),
@@ -38,3 +38,17 @@ for d, must_exist, what, options in path_dirs:
         else:
             sys.path.append(d)
         paths[what] = d
+
+
+class Prioritize:
+    def __init__(self, name):
+        self.name = name
+        self.path = None
+
+    def __enter__(self):
+        self.path = sys.path.copy()
+        sys.path = [paths[self.name]] + sys.path
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        sys.path = self.path
+        self.path = None
